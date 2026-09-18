@@ -1,0 +1,90 @@
+name: Build TaskDroid Manager APK
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: taskdroid-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Assemble & release APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Generate signing keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore "$RUNNER_TEMP/taskdroid.keystore" \
+            -alias taskdroid \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass taskdroidpass -keypass taskdroidpass \
+            -dname "CN=TaskDroid Manager, OU=Mobile, O=TaskDroid, L=NA, ST=NA, C=US"
+
+      - name: Assemble release APK
+        run: |
+          gradle --no-daemon --stacktrace assembleRelease \
+            -PTD_KEYSTORE_PATH="$RUNNER_TEMP/taskdroid.keystore" \
+            -PTD_KEYSTORE_PASS=taskdroidpass \
+            -PTD_KEY_ALIAS=taskdroid \
+            -PTD_KEY_PASS=taskdroidpass
+
+      - name: Collect APK
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/TaskDroid Manager.apk"
+          ls -la dist
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TaskDroid-Manager-apk
+          path: dist/TaskDroid Manager.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: TaskDroid Manager v1.0.0
+          make_latest: true
+          body: |
+            Automated build from commit `${{ github.sha }}`.
+
+            **TaskDroid Manager** - full device task manager & device-care monitor.
+
+            Features:
+            - Device Care dashboard + live care score
+            - Internet live graph (WiFi / mobile data download & upload speed)
+            - SIM info - dual / single slot, operators, MCC-MNC, eSIM
+            - LTE / 4G & 5G NR support, VoLTE status, LTE bands (best-effort from radio)
+            - Battery live graphs (level + temperature), volts/current/health/cycles
+            - CPU: SoC vendor & model (Qualcomm / MediaTek / Unisoc / HiSilicon / Exynos...), cores, frequencies, live usage graph + per-core load
+            - Hardware & software info, sensors, kernel, SELinux, build info
+            - Bootloader locked / unlocked (verified boot state)
+            - Storage & RAM details, swap/zram, per-volume usage
+            - Device temperature (thermal zones) + current place/location temperature (Open-Meteo)
+            - Full installed-apps list with versions & sizes, running services/processes
+
+            Install `TaskDroid Manager.apk` on Android 8.0+ (minSdk 26).
+          files: dist/TaskDroid Manager.apk
