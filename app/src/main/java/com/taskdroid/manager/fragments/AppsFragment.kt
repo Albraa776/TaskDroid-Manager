@@ -97,7 +97,7 @@ class AppsFragment : androidx.fragment.app.Fragment() {
                                 val stats = ssm.queryStatsForPackage(
                                     uuid, a.packageName, android.os.Process.myUserHandle()
                                 )
-                                size = stats.totalBytes
+                                size = stats.appBytes + stats.cacheBytes
                             }
                         }
                     } catch (_: Throwable) {

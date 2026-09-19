@@ -74,10 +74,10 @@ class CareFragment : BaseInfoFragment() {
                 }
                 w != null -> {
                     kv("Location", w.place)
-                    kv("Current temperature", "${w.tempC.fmt(1)} °C")
-                    kv("Feels like", "${w.feelsLikeC.fmt(1)} °C")
+                    kv("Current temperature", "${w.tempC.toFloat().fmt(1)} °C")
+                    kv("Feels like", "${w.feelsLikeC.toFloat().fmt(1)} °C")
                     if (w.humidity >= 0) kv("Humidity", "${w.humidity}%")
-                    kv("Wind", "${w.windKmh.fmt(0)} km/h")
+                    kv("Wind", "${w.windKmh.toFloat().fmt(0)} km/h")
                     kv("Conditions", w.summary)
                     kv("Source", w.source)
                 }

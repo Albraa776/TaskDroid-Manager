@@ -125,7 +125,7 @@ object TelephonyUtil {
                 TelephonyManager.PHONE_TYPE_CDMA -> "CDMA"
                 TelephonyManager.PHONE_TYPE_SIP -> "SIP"
                 TelephonyManager.PHONE_TYPE_NONE -> "No active phone radio"
-                TelephonyManager.PHONE_TYPE_IMS -> "IMS"
+                4 -> "IMS"
                 else -> "Unknown"
             }
             out["Radio Type"] = phoneType
@@ -144,7 +144,8 @@ object TelephonyUtil {
             }
             out["IMEI (slot 0)"] = try { tm.imei } catch (_: Throwable) { "blocked" }
             out["Meid"] = try { tm.meid } catch (_: Throwable) { "blocked" }
-            out["Data Roaming"] = if (tm.isDataRoaming) "YES" else "No"
+            @Suppress("DEPRECATION")
+            out["Data Roaming"] = if (tm.networkRoaming) "YES" else "No"
             out["Network Country Iso"] = tm.networkCountryIso ?: "N/A"
             out["Sim Country Iso"] = tm.simCountryIso ?: "N/A"
             out["Sim Operator"] = tm.simOperatorName ?: "N/A"
@@ -185,7 +186,7 @@ object TelephonyUtil {
             val tm = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             val subs = SubscriptionManager.from(ctx).activeSubscriptionInfoList ?: emptyList()
             val count = subs.size
-            val physicalCount = if (Build.VERSION.SDK_INT >= 28) tm.simCount else 0
+            val physicalCount = griv(tm, "getSimCount")?.toIntOrNull() ?: 0
             for (s in subs) {
                 val m = linkedMapOf<String, String>()
                 m["Slot"] = "SIM ${s.simSlotIndex + 1}"
@@ -225,18 +226,26 @@ object TelephonyUtil {
         }
     }
 
-    fun supportedNetworks(ctx: Context): List<String> {
-        val out = mutableListOf<String>()
-        try {
-            if (Build.VERSION.SDK_INT >= 30) {
-                val tm = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                val all = tm.allNetworkTypes
-                out.addAll(all.map { networkNameForType(it) })
+fun supportedNetworks(ctx: Context): List<String> {
+    val out = mutableListOf<String>()
+    try {
+        val tm = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        var types: List<Int> = emptyList()
+        if (Build.VERSION.SDK_INT >= 30) {
+            try {
+                types = (tm.javaClass.getMethod("getAllNetworkTypes").invoke(tm) as IntArray).toList()
+            } catch (_: Throwable) {
             }
-        } catch (_: Throwable) {
         }
-        return out.distinct()
+        if (types.isEmpty()) {
+            @Suppress("DEPRECATION")
+            types = listOf(tm.networkType)
+        }
+        out.addAll(types.map { networkNameForType(it) })
+    } catch (_: Throwable) {
     }
+    return out.distinct()
+}
 
     fun lteVolteInfo(ctx: Context): Map<String, String> {
         val out = linkedMapOf<String, String>()
@@ -254,7 +263,7 @@ object TelephonyUtil {
                 val subId = SubscriptionManager.getDefaultSubscriptionId()
                 val b = cfg.getConfigForSubId(subId)
                 if (b != null) {
-                    val v = b.getBoolean(CarrierConfigManager.KEY_VOLTE_AVAILABLE_BOOL)
+                    val v = b.getBoolean("carrier_volte_available_bool")
                     volte = if (v) "Available (carrier config)" else "Not advertised"
                 }
             } catch (_: Throwable) {

@@ -120,7 +120,6 @@ class SystemFragment : BaseInfoFragment() {
         Sensor.TYPE_GAME_ROTATION_VECTOR -> "game rotation"
         Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR -> "geo mag rotation"
         Sensor.TYPE_POSE_6DOF -> "6DoF pose"
-        Sensor.TYPE_LAST -> "last type"
         else -> "sensor"
     }
 

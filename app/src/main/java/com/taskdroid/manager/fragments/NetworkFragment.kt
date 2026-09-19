@@ -116,7 +116,7 @@ class NetworkFragment : BaseInfoFragment() {
         }
     }
 
-    private fun rowDivider() {
+    private fun LinearLayout.rowDivider() {
         val v = android.view.View(context)
         v.setBackgroundColor(ContextCompat.getColor(context, R.color.divider))
         addView(v, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
@@ -124,7 +124,7 @@ class NetworkFragment : BaseInfoFragment() {
         })
     }
 
-    private fun addSelectableText(text: String) {
+    private fun LinearLayout.addSelectableText(text: String) {
         addView(TextView(context).apply {
             this.text = text
             textSize = 12f

@@ -36,7 +36,7 @@ class LiveChartView @JvmOverloads constructor(
         set(value) {
             field = value
             linePaint.color = value
-            fillShader = null
+            mFillShader = null
         }
     var displayMaxPoints = 100
 

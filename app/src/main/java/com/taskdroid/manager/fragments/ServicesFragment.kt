@@ -51,6 +51,7 @@ class ServicesFragment : androidx.fragment.app.Fragment() {
 
     private suspend fun refresh() = withContext(Dispatchers.IO) {
         val ctx = requireContext()
+        val pm = ctx.packageManager
         val rows = mutableListOf<ServiceRow>()
         try {
             val am = ctx.getSystemService(android.content.Context.ACTIVITY_SERVICE) as ActivityManager
