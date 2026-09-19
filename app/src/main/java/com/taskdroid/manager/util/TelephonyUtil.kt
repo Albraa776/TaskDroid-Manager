@@ -145,7 +145,7 @@ object TelephonyUtil {
             out["IMEI (slot 0)"] = try { tm.imei } catch (_: Throwable) { "blocked" }
             out["Meid"] = try { tm.meid } catch (_: Throwable) { "blocked" }
             @Suppress("DEPRECATION")
-            out["Data Roaming"] = if (tm.getNetworkRoaming()) "YES" else "No"
+            out["Data Roaming"] = if (griv(tm, "getNetworkRoaming") == "true") "YES" else "No"
             out["Network Country Iso"] = tm.networkCountryIso ?: "N/A"
             out["Sim Country Iso"] = tm.simCountryIso ?: "N/A"
             out["Sim Operator"] = tm.simOperatorName ?: "N/A"
