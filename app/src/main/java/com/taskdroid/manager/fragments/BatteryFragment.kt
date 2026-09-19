@@ -45,6 +45,7 @@ class BatteryFragment : BaseInfoFragment() {
     private fun buildGraphs() {
         val card = content.infoCard("LIVE GRAPHS  (last 60 s)")
         val inner = card.getChildAt(0) as LinearLayout
+        val chartHeight = (120 * requireContext().resources.displayMetrics.density).toInt()
 
         levelChart = LiveChartView(requireContext()).apply {
             title = "Battery level"
@@ -52,7 +53,6 @@ class BatteryFragment : BaseInfoFragment() {
             capacity = 60
             displayMaxPoints = 60
             lineColor = ContextCompat.getColor(requireContext(), R.color.success)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(120))
         }
         tempChart = LiveChartView(requireContext()).apply {
             title = "Battery temperature"
@@ -61,8 +61,9 @@ class BatteryFragment : BaseInfoFragment() {
             capacity = 60
             displayMaxPoints = 60
             lineColor = ContextCompat.getColor(requireContext(), R.color.danger)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(120))
         }
+        levelChart?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, chartHeight)
+        tempChart?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, chartHeight)
         inner.addView(levelChart)
         inner.addView(tempChart)
 
@@ -78,13 +79,13 @@ class BatteryFragment : BaseInfoFragment() {
         val bm = ctx.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
 
         val level = try { bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) } catch (_: Throwable) { -1 }
-        val tempC = try { bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_TEMPERATURE) } catch (_: Throwable) { Int.MIN_VALUE }.let { if (it == Int.MIN_VALUE) null else it / 10f }
-        val volt = try { bm.getLongProperty(BatteryManager.BATTERY_PROPERTY_VOLTAGE) } catch (_: Throwable) { -1L }
+        val tempC = try { bm.getIntProperty(7) } catch (_: Throwable) { Int.MIN_VALUE }.let { if (it == Int.MIN_VALUE) null else it / 10f }
+        val volt = try { bm.getLongProperty(8) } catch (_: Throwable) { -1L }
         val current = try { bm.getLongProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) } catch (_: Throwable) { 0L }
         val currentAvg = try { bm.getLongProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE) } catch (_: Throwable) { 0L }
         val chargeCounter = try { bm.getLongProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER) } catch (_: Throwable) { -1L }
         val cycles = if (Build.VERSION.SDK_INT >= 34) {
-            try { bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CYCLE_COUNT) } catch (_: Throwable) { -1 }
+            try { bm.getIntProperty(11) } catch (_: Throwable) { -1 }
         } else -1
 
         levelChart?.addPoint(level.toFloat())

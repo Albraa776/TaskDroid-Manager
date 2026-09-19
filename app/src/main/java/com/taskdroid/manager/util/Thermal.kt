@@ -2,16 +2,14 @@ package com.taskdroid.manager.util
 
 import android.content.Context
 import android.os.BatteryManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 object Thermal {
     data class Zone(val name: String, val type: String, val tempC: Float? )
 
-    suspend fun thermalZones(): List<Zone> = withContext(Dispatchers.IO) {
-        try {
+    fun thermalZones(): List<Zone> {
+        return try {
             val dir = java.io.File("/sys/class/thermal")
-            val zones = dir.listFiles()?.filter { it.name.startsWith("thermal_zone") } ?: return@withContext emptyList()
+            val zones = dir.listFiles()?.filter { it.name.startsWith("thermal_zone") } ?: return emptyList()
             zones.mapNotNull { z ->
                 try {
                     val type = java.io.File(z, "type").readText().trim()
@@ -30,7 +28,7 @@ object Thermal {
     fun batteryTempC(context: Context): Float? {
         return try {
             val bm = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-            val e = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_TEMPERATURE)
+            val e = bm.getIntProperty(7) // BatteryProperty.BATTERY_PROPERTY_TEMPERATURE (hidden)
             if (e == Int.MIN_VALUE) null else e / 10f
         } catch (_: Throwable) {
             null

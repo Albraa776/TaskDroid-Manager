@@ -12,12 +12,12 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 import com.taskdroid.manager.R
 
-fun LinearLayout.sectionTitle(text: String, subtitle: String? = null) {
+fun LinearLayout.sectionTitle(heading: String, subtitle: String? = null) {
     val tv = TextView(context).apply {
         setTextColor(ContextCompat.getColor(context, R.color.primary))
         textSize = 16f
         setTypeface(android.graphics.Typeface.DEFAULT_BOLD)
-        text = text
+        text = heading
         setPadding(dp(4), dp(18), dp(4), dp(6))
     }
     if (subtitle != null) {
@@ -83,7 +83,7 @@ fun LinearLayout.kv(label: String, value: String, valueColor: Int = R.color.text
         textSize = 13f
         setTextColor(ContextCompat.getColor(context, valueColor))
         setPadding(0, dp(3), 0, dp(3))
-        textIsSelectable = true
+        setTextIsSelectable(true)
     }
     row.addView(l, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.45f))
     row.addView(v, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.55f))
@@ -119,7 +119,7 @@ fun LinearLayout.bigValue(title: String, value: String, unit: String = "", accen
     }
 }
 
-fun Context.dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+fun dp(value: Int): Int = (value * android.content.res.Resources.getSystem().displayMetrics.density).toInt()
 
 fun LinearLayout.divider() {
     val v = View(context)
@@ -130,7 +130,7 @@ fun LinearLayout.divider() {
     })
 }
 
-fun LinearLayout.bar(label: String, valueText: String, progress: Float, color: Int = R.color.accent) {
+fun LinearLayout.bar(label: String, valueText: String, pct: Float, color: Int = R.color.accent) {
     val card = infoCard(label) {
         val labelRow = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
         labelRow.addView(TextView(context).apply {
@@ -142,7 +142,7 @@ fun LinearLayout.bar(label: String, valueText: String, progress: Float, color: I
         addView(labelRow)
         val bar = android.widget.ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 1000
-            progress = (progress.coerceIn(0f, 100f) * 10).toInt()
+            progress = (pct.coerceIn(0f, 100f) * 10).toInt()
             progressTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, color))
             progressBackgroundTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.surface_variant))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(8)).apply {

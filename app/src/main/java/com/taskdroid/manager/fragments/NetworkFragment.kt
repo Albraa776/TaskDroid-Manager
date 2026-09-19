@@ -8,12 +8,12 @@ import com.taskdroid.manager.R
 import com.taskdroid.manager.ui.LiveChartView
 import com.taskdroid.manager.ui.dp
 import com.taskdroid.manager.ui.fmt
+import com.taskdroid.manager.ui.formatBytes
+import com.taskdroid.manager.ui.infoCard
+import com.taskdroid.manager.ui.kv
+import com.taskdroid.manager.ui.sectionTitle
 import com.taskdroid.manager.util.TelephonyUtil
 import com.taskdroid.manager.util.Traffic
-import com.taskdroid.manager.util.formatBytes
-import com.taskdroid.manager.util.infoCard
-import com.taskdroid.manager.util.kv
-import com.taskdroid.manager.util.sectionTitle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +46,7 @@ class NetworkFragment : BaseInfoFragment() {
     private fun buildGraphs() {
         val card = content.infoCard("LIVE DATA RATE  (last 60 s)")
         val inner = card.getChildAt(0) as LinearLayout
+        val chartHeight = (120 * requireContext().resources.displayMetrics.density).toInt()
 
         downChart = LiveChartView(requireContext()).apply {
             title = "Download"
@@ -54,7 +55,6 @@ class NetworkFragment : BaseInfoFragment() {
             capacity = 60
             displayMaxPoints = 60
             lineColor = ContextCompat.getColor(requireContext(), R.color.success)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(120))
         }
         upChart = LiveChartView(requireContext()).apply {
             title = "Upload"
@@ -63,8 +63,9 @@ class NetworkFragment : BaseInfoFragment() {
             capacity = 60
             displayMaxPoints = 60
             lineColor = ContextCompat.getColor(requireContext(), R.color.accent)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(120))
         }
+        downChart?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, chartHeight)
+        upChart?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, chartHeight)
         inner.addView(downChart)
         inner.addView(upChart)
 

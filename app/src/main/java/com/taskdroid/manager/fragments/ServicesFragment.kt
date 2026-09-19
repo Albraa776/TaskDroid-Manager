@@ -54,23 +54,16 @@ class ServicesFragment : androidx.fragment.app.Fragment() {
         val rows = mutableListOf<ServiceRow>()
         try {
             val am = ctx.getSystemService(android.content.Context.ACTIVITY_SERVICE) as ActivityManager
-            val pm = ctx.packageManager
 
             @Suppress("DEPRECATION")
             val procs = am.runningAppProcesses
             val procCount = procs?.size ?: 0
-            var pssTotal = 0L
-            if (procs != null) {
-                for (p in procs) {
-                    pssTotal += p.memoryInfo?.totalPss ?: 0
-                }
-            }
 
             // header row
-            rows.add(ServiceRow("Running processes", "$procCount processes", "total PSS ${MemStorage.formatBytes(pssTotal * 1024)}"))
+            rows.add(ServiceRow("Running processes", "$procCount processes", "kernel + system + app processes (PSS needs usage access)"))
 
             @Suppress("DEPRECATION")
-            val services = am.runningServices(Int.MAX_VALUE)
+            val services = am.getRunningServices(Int.MAX_VALUE)
             rows.add(ServiceRow("Running services", "${services.size} services", "note: Android limits visibility of other apps' services"))
 
             for (s in services) {
@@ -78,7 +71,7 @@ class ServicesFragment : androidx.fragment.app.Fragment() {
                 val type = when (s.foreground) {
                     true -> "FOREGROUND"
                     false -> "background"
-                    null -> "?"
+                    else -> "?"
                 }
                 val clientLabel = s.clientCount?.let { " $it client(s)" } ?: ""
                 rows.add(
@@ -90,7 +83,7 @@ class ServicesFragment : androidx.fragment.app.Fragment() {
                 )
             }
         } catch (e: Throwable) {
-            rows.add(ServiceRow("Error", e.message ?: "unknown", "swipe? none"))
+            rows.add(ServiceRow("Error", e.message ?: "unknown", ""))
         }
         withContext(Dispatchers.Main) {
             if (isAdded) adapter?.submit(rows)

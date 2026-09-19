@@ -42,14 +42,15 @@ class CpuFragment : BaseInfoFragment() {
     private fun buildGraph() {
         val card = content.infoCard("CPU USAGE  (last 120 s)")
         val inner = card.getChildAt(0) as LinearLayout
+        val chartHeight = (140 * requireContext().resources.displayMetrics.density).toInt()
         chart = LiveChartView(requireContext()).apply {
             title = "CPU load"
             unit = "%"
             capacity = 120
             displayMaxPoints = 120
             lineColor = ContextCompat.getColor(requireContext(), R.color.primary)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(140))
         }
+        chart?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, chartHeight)
         inner.addView(chart)
     }
 

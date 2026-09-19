@@ -7,10 +7,10 @@ import android.os.Build
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import com.taskdroid.manager.R
+import com.taskdroid.manager.ui.infoCard
+import com.taskdroid.manager.ui.kv
+import com.taskdroid.manager.ui.sectionTitle
 import com.taskdroid.manager.util.DeviceInfo
-import com.taskdroid.manager.util.infoCard
-import com.taskdroid.manager.util.kv
-import com.taskdroid.manager.util.sectionTitle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

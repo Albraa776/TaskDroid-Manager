@@ -88,15 +88,17 @@ class AppsFragment : androidx.fragment.app.Fragment() {
                     var size = -1L
                     try {
                         val ssm = ctx.getSystemService<android.app.usage.StorageStatsManager>()
-                        if (ssm != null) {
-                            val stats = if (Build.VERSION.SDK_INT >= 26) {
-                                ssm.queryStatsForPackage(
-                                    android.os.StorageManager.UUID_DEFAULT,
-                                    a.packageName,
-                                    android.os.Process.myUserHandle()
+                        if (ssm != null && Build.VERSION.SDK_INT >= 26) {
+                            val uuid = try {
+                                Class.forName("android.os.StorageManager")
+                                    .getField("UUID_DEFAULT").get(null) as? java.util.UUID
+                            } catch (_: Throwable) { null }
+                            if (uuid != null) {
+                                val stats = ssm.queryStatsForPackage(
+                                    uuid, a.packageName, android.os.Process.myUserHandle()
                                 )
-                            } else null
-                            size = stats?.totalBytes ?: -1L
+                                size = stats.totalBytes
+                            }
                         }
                     } catch (_: Throwable) {
                         size = -1

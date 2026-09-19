@@ -1,16 +1,15 @@
 package com.taskdroid.manager.fragments
 
 import android.content.pm.PackageManager
-import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.taskdroid.manager.R
+import com.taskdroid.manager.ui.fmt
+import com.taskdroid.manager.ui.infoCard
+import com.taskdroid.manager.ui.kv
+import com.taskdroid.manager.ui.sectionTitle
 import com.taskdroid.manager.util.MemStorage
 import com.taskdroid.manager.util.Thermal
 import com.taskdroid.manager.util.WeatherHelper
-import com.taskdroid.manager.util.fmt
-import com.taskdroid.manager.util.infoCard
-import com.taskdroid.manager.util.kv
-import com.taskdroid.manager.util.sectionTitle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

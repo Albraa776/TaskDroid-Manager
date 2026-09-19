@@ -3,17 +3,18 @@ package com.taskdroid.manager.fragments
 import android.content.Context
 import android.os.BatteryManager
 import android.os.Build
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.taskdroid.manager.R
+import com.taskdroid.manager.ui.bar
+import com.taskdroid.manager.ui.infoCard
+import com.taskdroid.manager.ui.kv
+import com.taskdroid.manager.ui.sectionTitle
 import com.taskdroid.manager.util.CpuMonitor
 import com.taskdroid.manager.util.DeviceInfo
 import com.taskdroid.manager.util.MemStorage
 import com.taskdroid.manager.util.TelephonyUtil
 import com.taskdroid.manager.util.Thermal
-import com.taskdroid.manager.util.bar
-import com.taskdroid.manager.util.infoCard
-import com.taskdroid.manager.util.kv
-import com.taskdroid.manager.util.sectionTitle
 
 class OverviewFragment : BaseInfoFragment() {
     private var lastThermalRead = 0L
@@ -28,7 +29,6 @@ class OverviewFragment : BaseInfoFragment() {
 
         content.sectionTitle("Device Care Dashboard")
 
-        // Care score
         val (totalMem, availMem, _) = MemStorage.memInfo(ctx)
         val memUsedPct = if (totalMem > 0) 100 * (totalMem - availMem) / totalMem else 0
 
@@ -59,8 +59,12 @@ class OverviewFragment : BaseInfoFragment() {
         }
 
         content.infoCard("DEVICE CARE SCORE") {
-            val s = TextViewTitle("$careScore/100")
-            s.setTextColor(ContextCompat.getColor(context, scoreColor))
+            val s = TextView(requireContext()).apply {
+                text = "$careScore/100"
+                textSize = 40f
+                setTypeface(android.graphics.Typeface.DEFAULT_BOLD)
+                setTextColor(ContextCompat.getColor(requireContext(), scoreColor))
+            }
             addView(s)
             kv("Status", when {
                 careScore >= 80 -> "Excellent"
@@ -74,16 +78,13 @@ class OverviewFragment : BaseInfoFragment() {
         content.bar("Storage used", "${MemStorage.formatBytes(st.third)} of ${MemStorage.formatBytes(st.first)}  ($storageUsedPct%)", storageUsedPct.toFloat(), R.color.warn)
         content.bar("CPU load", "$cpu%", cpu, R.color.primary)
 
-        // Temps card
         content.infoCard("TEMPERATURES") {
             val battTemp = Thermal.batteryTempC(ctx)
             kv("Battery", battTemp?.let { "${it} °C" } ?: "unknown")
-            val maxTemp = if (thermalMax > 0) "${thermalMax} °C" else "unknown"
-            kv("Hottest thermal zone", maxTemp)
+            kv("Hottest thermal zone", if (thermalMax > 0) "${thermalMax} °C" else "unknown")
             kv("CPU temp (zone)", thermalMax.takeIf { it > 0 }?.let { "${it} °C" } ?: "unknown")
         }
 
-        // Device card
         val soc = DeviceInfo.detectSoc()
         content.infoCard("DEVICE") {
             kv("Device", "${Build.MANUFACTURER} ${Build.MODEL}")
@@ -94,14 +95,6 @@ class OverviewFragment : BaseInfoFragment() {
             kv("Network", TelephonyUtil.activeNetworkType(ctx) + " · " + TelephonyUtil.simSummary(ctx))
         }
     }
-
-    private fun TextViewTitle(text: String) =
-        android.widget.TextView(requireContext()).apply {
-            this.text = text
-            textSize = 40f
-            setTypeface(android.graphics.Typeface.DEFAULT_BOLD)
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.success))
-        }
 
     private fun thermalMax(): Float {
         val now = System.currentTimeMillis()
