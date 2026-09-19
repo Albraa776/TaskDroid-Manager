@@ -128,7 +128,7 @@ class NetworkFragment : BaseInfoFragment() {
         addView(TextView(context).apply {
             this.text = text
             textSize = 12f
-            textIsSelectable = true
+            setTextIsSelectable(true)
             setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
             setPadding(0, dp(4), 0, 0)
         })
